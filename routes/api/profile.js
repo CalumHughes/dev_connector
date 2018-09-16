@@ -29,7 +29,7 @@ router.get('/all', (req, res) => {
     .then(profiles => {
       if (!profiles) {
         errors.noprofiles = 'There are no profiles';
-        return res.status(404).json();
+        return res.status(404).json(errors);
       }
       res.json(profiles);
     })

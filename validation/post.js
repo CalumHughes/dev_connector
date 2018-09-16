@@ -6,12 +6,12 @@ module.exports = function validatePostInput(data) {
 
   data.text = !isEmpty(data.text) ? data.text : '';
 
-  if (!Validator.isLength(data.text, { mix: 10, max: 300 })) {
-    errors.email = 'Password must be in the range 10-300 characters';
+  if (!Validator.isLength(data.text, { min: 1, max: 300 })) {
+    errors.text = 'Password must be in the range 10-300 characters';
   }
 
-  if (!Validator.isEmpty(data.text)) {
-    errors.email = 'Post text is required';
+  if (Validator.isEmpty(data.text)) {
+    errors.text = 'Post text is required';
   }
 
   return {

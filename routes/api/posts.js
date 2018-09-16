@@ -94,16 +94,16 @@ router.post(
   '/like/:id',
   passport.authenticate('jwt', { session: false }),
   (req, res) => {
+    const errors = {};
     Profile.findOne({ user: req.user.id }).then(profile => {
       Post.findById(req.params.id)
         .then(post => {
           if (
-            posts.likes.filter(like => like.user.toString() === req.user.id)
+            post.likes.filter(like => like.user.toString() === req.user.id)
               .length > 0
           ) {
-            return res
-              .status(400)
-              .json({ alreadyliked: 'User already liked post' });
+            errors.alreadyliked = 'User already liked post';
+            return res.status(400).json({ errors });
           }
 
           // Add user id to likes array
@@ -112,7 +112,10 @@ router.post(
           // Save post
           post.save().then(post => res.json(post));
         })
-        .catch(err => res.status(404).json({ postnotfound: 'No post found' }));
+        .catch(err => {
+          errors.postnotfound = 'No post found';
+          res.status(404).json({ errors });
+        });
     });
   }
 );
@@ -128,7 +131,7 @@ router.post(
       Post.findById(req.params.id)
         .then(post => {
           if (
-            posts.likes.filter(like => like.user.toString() === req.user.id)
+            post.likes.filter(like => like.user.toString() === req.user.id)
               .length === 0
           ) {
             return res
@@ -185,11 +188,11 @@ router.post(
   }
 );
 
-// @route   DELETE api/posts/comment/:id/_:comment_id
+// @route   DELETE api/posts/comment/:id/:comment_id
 // @desc    Delete comment on post
 // @access  Private
 router.delete(
-  '/comment/:id/:comment_id',
+  '/comment/:id/:commentId',
   passport.authenticate('jwt', { session: false }),
   (req, res) => {
     Post.findById(req.params.id)
@@ -197,7 +200,7 @@ router.delete(
         // Check if comment exists
         if (
           post.comments.filter(
-            comment => comment_.id.toString() === req.params.comment_id
+            comment => comment._id.toString() === req.params.commentId
           ).length === 0
         ) {
           return res
@@ -207,8 +210,8 @@ router.delete(
 
         // Get remove index
         const removeIndex = post.comments
-          .map(item => items._id.toString())
-          .indexOf(req.params.comment_id);
+          .map(item => item._id.toString())
+          .indexOf(req.params.commentId);
 
         // Splice comment
         post.comments.splice(removeIndex, 1);
